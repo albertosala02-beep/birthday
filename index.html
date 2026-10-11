@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>Per Paolo · Un caso speciale</title>
+<meta name="birthday-edition" content="musica-alta-fuochi-v6">
 <style>
 :root{--ink:#18191b;--paper:#eee5d4;--muted:#b9b1a3;--gold:#d9b979;--red:#a34a3c;--line:#ffffff20}
 *{box-sizing:border-box}
@@ -181,14 +182,23 @@ footer{padding-top:10px}
 .reveal>.finaltools{justify-content:flex-start;margin:8px 0 0;gap:12px}
 }
 
+
+.volume-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:9px 0 0;position:relative;z-index:1}
+.volume-bar label,.volume-bar output{font:10px "Courier New",monospace;color:var(--muted)}
+.volume-bar output{min-width:30px;text-align:right;color:var(--gold)}
+.volume-bar input{width:125px;height:28px;margin:0;accent-color:var(--gold);cursor:pointer;touch-action:auto}
+.volume-bar input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@media(max-width:700px){.volume-bar{padding-top:7px;gap:8px}.volume-bar input{width:118px;height:30px}}
+
 </style>
 </head>
 <body>
 <div class="shell">
 <header>
 <div class="brand"><span class="mark" aria-hidden="true">P</span><span>Archivio di famiglia<br>Sezione casi speciali</span></div>
-<div class="tools"><button class="iconbtn" id="save" type="button" title="Scarica il file completo, utilizzabile senza ChatGPT">Scarica HTML</button></div>
+<div class="tools"><button class="iconbtn" id="sound" type="button" aria-pressed="true" aria-label="Disattiva la musica di sottofondo" title="La musica partirà aprendo il fascicolo. Tocca per disattivarla.">♫ Musica: on</button><button class="iconbtn" id="save" type="button" title="Scarica il file completo, utilizzabile senza ChatGPT">Scarica HTML</button></div>
 </header>
+<div class="volume-bar"><label for="music-volume">Volume musica</label><input id="music-volume" type="range" min="0" max="100" value="85" step="1" aria-label="Volume della musica" aria-valuetext="85 per cento"><output id="volume-level" for="music-volume">85%</output></div>
 <main id="screen" aria-label="Il caso di Paolo"></main>
 <p class="toast" id="toast" role="status"></p>
 <footer><span id="foot">Accesso riservato a Paolo</span><div class="progress" aria-label="Progresso del caso"><i></i><i></i><i></i><i></i></div></footer>
@@ -199,6 +209,112 @@ footer{padding-top:10px}
 const source="<!doctype html>\n"+document.documentElement.outerHTML;
 const screen=document.getElementById("screen");
 const state={step:0,flipped:false,first:false,second:false};
+
+
+let audio=null,muted=false,musicBus=null,noteBus=null,pianoWave=null,musicTimer=null,nextBeat=0,beatIndex=0;
+let musicVolume=.85;
+const voices=new Set();
+const tempo=60/82;
+const score=[
+{bass:50,chord:[57,62,65],melody:[74,null,77,76,74,null]},
+{bass:50,chord:[57,62,64],melody:[73,null,74,76,77,null]},
+{bass:43,chord:[58,62,67],melody:[79,null,77,null,74,null]},
+{bass:45,chord:[55,61,64],melody:[73,null,71,69,null,null]},
+{bass:50,chord:[57,62,65],melody:[74,null,77,81,79,77]},
+{bass:46,chord:[58,62,65],melody:[77,null,74,70,null,null]},
+{bass:40,chord:[55,58,62],melody:[76,null,74,70,67,null]},
+{bass:45,chord:[55,61,64],melody:[73,null,76,73,69,null]},
+{bass:43,chord:[58,62,67],melody:[79,null,82,81,79,null]},
+{bass:41,chord:[57,62,65],melody:[77,null,76,74,69,null]},
+{bass:40,chord:[55,58,64],melody:[76,77,79,null,76,74]},
+{bass:45,chord:[55,61,64],melody:[73,null,71,69,null,null]},
+{bass:50,chord:[57,62,65],melody:[74,null,77,76,74,null]},
+{bass:46,chord:[58,62,65],melody:[70,null,74,77,74,null]},
+{bass:45,chord:[55,61,64],melody:[73,null,76,69,73,null]},
+{bass:50,chord:[57,62,65],melody:[74,null,null,null,null,null]}
+];
+function musicControl(){
+const b=document.getElementById("sound");
+b.textContent=muted?"♫ Musica: off":"♫ Musica: on";
+b.setAttribute("aria-pressed",String(!muted));
+b.setAttribute("aria-label",muted?"Attiva la musica di sottofondo":"Disattiva la musica di sottofondo");
+b.title=muted?"Attiva il sottofondo investigativo":"Musica originale: un piccolo valzer del mistero. Tocca per spegnerla.";
+}
+function makeAudio(){
+if(audio)return;
+const AC=window.AudioContext||window.webkitAudioContext;
+if(!AC)throw new Error("Audio non disponibile");
+audio=new AC();
+musicBus=audio.createGain();musicBus.gain.value=0;musicBus.connect(audio.destination);
+noteBus=audio.createGain();
+const dry=audio.createGain();dry.gain.value=.88;noteBus.connect(dry);dry.connect(musicBus);
+const reverb=audio.createConvolver(),wet=audio.createGain();wet.gain.value=.12;
+const length=Math.floor(audio.sampleRate*1.35),impulse=audio.createBuffer(2,length,audio.sampleRate);
+let seed=731;
+for(let c=0;c<2;c++){const data=impulse.getChannelData(c);for(let i=0;i<length;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;data[i]=(seed/4294967296*2-1)*Math.pow(1-i/length,3.2);}}
+reverb.buffer=impulse;noteBus.connect(reverb);reverb.connect(wet);wet.connect(musicBus);
+pianoWave=audio.createPeriodicWave(new Float32Array(7),new Float32Array([0,1,.32,.13,.055,.025,.01]));
+}
+function playNote(midi,time,duration,volume,instrument,effect){
+if(!audio)return;
+const o=audio.createOscillator(),g=audio.createGain(),filter=audio.createBiquadFilter();
+const frequency=440*Math.pow(2,(midi-69)/12);
+o.frequency.setValueAtTime(frequency,time);
+if(instrument==="piano")o.setPeriodicWave(pianoWave);else o.type=instrument==="bass"?"sine":"triangle";
+filter.type="lowpass";filter.Q.value=.35;
+const bright=instrument==="piano"?Math.min(4400,frequency*5):instrument==="pizz"?1800:instrument==="pad"?850:600;
+filter.frequency.setValueAtTime(bright,time);
+filter.frequency.exponentialRampToValueAtTime(Math.max(240,Math.min(bright,frequency*1.7)),time+duration);
+g.gain.setValueAtTime(.0001,time);
+if(instrument==="pad"){g.gain.linearRampToValueAtTime(volume,time+.22);g.gain.setValueAtTime(volume*.85,time+duration-.35);g.gain.exponentialRampToValueAtTime(.0001,time+duration);}
+else{g.gain.linearRampToValueAtTime(volume,time+.008);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume*.32),time+Math.min(.16,duration*.4));g.gain.exponentialRampToValueAtTime(.0001,time+duration);}
+o.connect(filter);filter.connect(g);
+let pan=null;
+if(audio.createStereoPanner){pan=audio.createStereoPanner();pan.pan.value=instrument==="pizz"?.22:instrument==="bass"?-.18:instrument==="pad"?-.25:0;g.connect(pan);pan.connect(noteBus);}else g.connect(noteBus);
+voices.add(o);
+o.onended=function(){voices.delete(o);o.disconnect();filter.disconnect();g.disconnect();if(pan)pan.disconnect();};
+o.start(time);o.stop(time+duration+.025);
+}
+function scheduleMusic(){
+if(muted||document.hidden||!audio)return;
+const now=audio.currentTime;
+if(nextBeat<now-.1)nextBeat=now+.04;
+while(nextBeat<now+.24){
+const bar=Math.floor(beatIndex/3)%score.length,beat=beatIndex%3,part=score[bar],t=nextBeat;
+if(beat===0){
+playNote(part.bass,t,tempo*2.25,.10,"bass",false);
+if(bar%2===0)part.chord.slice(0,2).forEach(function(n,i){playNote(n,t+i*.015,tempo*2.85,.011,"pad",false);});
+}else{
+part.chord.forEach(function(n,i){playNote(n,t+i*.012,.32,.032,"pizz",false);});
+}
+for(let half=0;half<2;half++){const n=part.melody[beat*2+half];if(n!==null){playNote(n,t+half*tempo*.5,.95,half===0?.092:.068,"piano",false);}}
+beatIndex=(beatIndex+1)%(score.length*3);nextBeat+=tempo;
+}
+}
+function pauseMusic(){
+if(musicTimer!==null){clearInterval(musicTimer);musicTimer=null;}
+if(!audio)return;
+const now=audio.currentTime;
+musicBus.gain.cancelScheduledValues(now);musicBus.gain.setTargetAtTime(0,now,.035);
+voices.forEach(function(o){try{o.stop(now+.13);}catch(e){}});
+}
+async function beginMusic(){
+if(muted||document.hidden)return;
+try{
+makeAudio();await audio.resume();
+if(muted||document.hidden)return;
+if(musicTimer!==null)return;
+const now=audio.currentTime;
+musicBus.gain.cancelScheduledValues(now);musicBus.gain.setTargetAtTime(musicVolume*1.2,now,.18);
+nextBeat=now+.06;scheduleMusic();musicTimer=setInterval(scheduleMusic,60);musicControl();
+}catch(e){
+muted=true;pauseMusic();musicControl();
+document.getElementById("toast").textContent="Il browser non ha avviato la musica. Tocca «Musica: off» per riprovare; il gioco continua.";
+}
+}
+document.addEventListener("visibilitychange",function(){if(document.hidden)pauseMusic();else if(audio&&!muted)beginMusic();});
+window.addEventListener("pagehide",pauseMusic);
+window.addEventListener("pageshow",function(){if(audio&&!muted&&!document.hidden)beginMusic();});
 
 
 let fireworksRun=null;
@@ -278,7 +394,7 @@ function on(id,fn){const el=document.getElementById(id);if(el)el.addEventListene
 function progress(n){document.querySelectorAll(".progress i").forEach(function(el,i){el.classList.toggle("done",i<n);});document.querySelector(".progress").setAttribute("aria-label",n+" di 4 tappe completate");document.getElementById("foot").textContent=n===4?"Caso chiuso · Famiglia complice":"Accesso riservato a Paolo";}
 function show(markup,n){stopFireworks();screen.innerHTML=markup;screen.style.animation="none";void screen.offsetWidth;screen.style.animation="";progress(n);const heading=screen.querySelector("h1,h2");if(heading){heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});}try{window.scrollTo({top:0,behavior:"instant"});}catch(e){}}
 function hint(text){const el=document.getElementById("hint");el.hidden=!el.hidden;el.textContent=text;}
-function intro(){state.step=0;show('<section class="hero"><div><p class="eyebrow">Un compleanno fuori copione</p><h1>Paolo,<br>abbiamo un<br><em>piccolo caso.</em></h1><p class="lead">Il tuo regalo è scomparso.<br>La famiglia si dichiara innocente.<br>Ma qualcuno sta decisamente mentendo.</p><button class="primary" id="start">Apri il fascicolo <span class="arrow" aria-hidden="true">↗</span></button><p class="small">Tre indizi. Nessuna fretta. Fidati di nessuno.</p></div><div class="art" aria-hidden="true"><div class="orbit"></div><div class="envelope"><div class="mono">Strettamente personale</div><div class="name">Per Paolo.</div><div class="mono">Da aprire con sospetto.</div><div class="seal">P</div></div><div class="stamp">Regalo classificato</div></div></section>',0);on("start",function(){one();});}
+function intro(){state.step=0;show('<section class="hero"><div><p class="eyebrow">Un compleanno fuori copione</p><h1>Paolo,<br>abbiamo un<br><em>piccolo caso.</em></h1><p class="lead">Il tuo regalo è scomparso.<br>La famiglia si dichiara innocente.<br>Ma qualcuno sta decisamente mentendo.</p><button class="primary" id="start">Apri il fascicolo <span class="arrow" aria-hidden="true">↗</span></button><p class="small">Tre indizi. Nessuna fretta. Fidati di nessuno.<br>Un sottofondo musicale ti accompagnerà nel caso.</p></div><div class="art" aria-hidden="true"><div class="orbit"></div><div class="envelope"><div class="mono">Strettamente personale</div><div class="name">Per Paolo.</div><div class="mono">Da aprire con sospetto.</div><div class="seal">P</div></div><div class="stamp">Regalo classificato</div></div></section>',0);on("start",function(){beginMusic();one();});}
 function one(){state.step=1;show('<section class="stage"><div class="stagehead"><p class="eyebrow">Indizio 01 / La busta</p><h2>Ogni storia ha<br><em>un altro lato.</em></h2><p>Questa busta è l’unica cosa rimasta al posto del regalo. Esaminala.</p></div><div class="grid"><div class="cluebox"><button class="envelope flipcard" id="flip" aria-label="Gira la busta per leggere il retro"><div class="mono">Reperto numero 01</div><div class="name">Per Paolo.</div><div class="mono">Apparentemente vuota.</div><div class="seal" aria-hidden="true">?</div></button><span class="fliphint">↖ Tocca la busta per girarla</span></div><div><p class="mono" style="color:var(--gold)">Che cosa stai cercando?</p><button class="choice" data-answer="0"><span class="code">A</span>Un oggetto da scartare</button><button class="choice" data-answer="1"><span class="code">B</span>Un’esperienza da vivere</button><button class="choice" data-answer="2"><span class="code">C</span>La ricevuta del regalo</button><p class="feedback" id="feedback" role="status"></p></div></div><div class="after"><button class="linkbtn" id="help">Un piccolo aiuto</button><button class="primary" id="next" disabled>Segui la pista <span class="arrow" aria-hidden="true">→</span></button></div><p class="hint" id="hint" hidden></p></section>',0);
 on("flip",function(){state.flipped=true;const b=document.getElementById("flip");b.classList.add("back");b.setAttribute("aria-label","Retro della busta: non cercare qualcosa da mettere su uno scaffale. Il regalo è qualcosa da vivere.");b.innerHTML='<div class="mono">Messaggio sul retro</div><p class="backtext">«Non cercare qualcosa da mettere su uno scaffale.<br>Il regalo è qualcosa<br><em>da vivere.</em>»</p><div class="mono">Firmato: qualcuno che ti conosce.</div>';});
 screen.querySelectorAll("[data-answer]").forEach(function(b){b.addEventListener("click",function(){if(!state.flipped){document.getElementById("feedback").textContent="Prima esamina la busta: potrebbe nascondere un messaggio.";return;}if(b.dataset.answer==="1"){state.first=true;document.getElementById("feedback").textContent="Esatto. Questa volta la scatola non serve.";document.getElementById("next").disabled=false;}else{document.getElementById("feedback").textContent="Il messaggio sul retro suggerisce un’altra pista. Riprova.";}});});
@@ -329,7 +445,15 @@ on("help",function(){hint("Esplora le tre note con la torcia o con i pulsanti. O
 function verdict(){state.step=4;show('<section class="verdict"><div class="bigmark" aria-hidden="true">✓</div><p class="eyebrow">Accesso autorizzato</p><h2>Caso risolto.<br><em>La sorpresa è tua.</em></h2><p class="lead">Hai seguito tutte le tracce, Paolo. Ora sai che sarà un’esperienza da vivere insieme. Manca solo un ultimo dettaglio…</p><button class="primary" id="reveal">Scopri il tuo regalo <span class="arrow" aria-hidden="true">↗</span></button></section>',3);on("reveal",function(){reveal();});}
 function reveal(){state.step=5;show('<section class="reveal"><p class="eyebrow">Il mistero è risolto</p><div class="ticket"><div class="mono">Invito speciale · Destinatario: Paolo</div><h2>Una cena<br><em>con delitto.</em></h2><p class="family">Con tutta la famiglia.</p><div class="rule"></div><p>Il tavolo è prenotato.<br>I sospettati siamo noi.<br>Il protagonista sei tu.</p></div><p class="birthday">Buon compleanno, Paolo!</p><p class="small">Preparati a indagare, ridere e sospettare di tutti noi.<br>Con affetto, tutta la famiglia.</p><div class="finaltools"><button class="linkbtn" id="again">Riapri il caso ↺</button><button class="linkbtn" id="fireworks-again">Ancora fuochi ✨</button><button class="linkbtn" id="download">Scarica HTML ↓</button></div></section>',4);on("again",function(){state.flipped=false;state.first=false;state.second=false;intro();});on("download",download);on("fireworks-again",celebrate);celebrate();}
 function download(){try{const blob=new Blob([source],{type:"text/html;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="index.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},30000);document.getElementById("toast").textContent="Se il download è consentito, trovi index.html nei file scaricati: contiene il gioco completo e non richiede ChatGPT.";}catch(e){document.getElementById("toast").textContent="Il download non è disponibile in questa anteprima.";}}
+
+document.getElementById("music-volume").addEventListener("input",function(){
+const raw=Number(this.value);musicVolume=Number.isFinite(raw)?Math.max(0,Math.min(1,raw/100)):.85;
+const percent=Math.round(musicVolume*100);document.getElementById("volume-level").textContent=percent+"%";this.setAttribute("aria-valuetext",percent+" per cento");
+if(audio&&musicBus&&!muted&&!document.hidden){musicBus.gain.cancelScheduledValues(audio.currentTime);musicBus.gain.setTargetAtTime(musicVolume*1.2,audio.currentTime,.04);}
+});
+
 on("save",download);
+on("sound",function(){muted=!muted;musicControl();if(muted)pauseMusic();else beginMusic();});
 
 intro();
 })();
