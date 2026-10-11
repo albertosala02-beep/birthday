@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Per Paolo · Un caso speciale</title>
+<style>
+:root{--ink:#18191b;--paper:#eee5d4;--muted:#b9b1a3;--gold:#d9b979;--red:#a34a3c;--line:#ffffff20}
+*{box-sizing:border-box}
+body{margin:0;background:#121315;color:var(--paper);font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6}
+button,a,input{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.42}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:5px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button,a{border-radius:3px}
+.shell{max-width:1060px;margin:auto;min-height:760px;padding:24px 48px 28px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 90% 0%,#42352c44,transparent 58%),#18191b}
+.shell:before{content:"";position:absolute;inset:9px;border:1px solid #d9b97923;pointer-events:none}
+header{display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid var(--line);padding-bottom:20px;position:relative;z-index:1}
+.brand,.eyebrow,.mono{font-family:"Courier New",monospace;text-transform:uppercase;letter-spacing:.15em;font-size:11px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--gold);line-height:1.4}
+.mark{border:1px solid #d9b97977;height:33px;width:33px;display:grid;place-items:center;font-family:Georgia,serif;font-size:19px;letter-spacing:0}
+.tools{display:flex;gap:6px;align-items:center}
+.iconbtn{border:1px solid var(--line);color:var(--muted);background:transparent;padding:7px 10px;min-height:40px;font-size:12px}
+.iconbtn:hover{color:var(--paper);border-color:var(--gold)}
+#screen{position:relative;z-index:1;animation:arrive .5s ease}
+.hero{display:grid;grid-template-columns:1.22fr 1fr;align-items:center;gap:28px;padding:57px 0 43px;min-height:568px}
+.eyebrow{color:var(--gold);margin:0 0 20px;display:flex;align-items:center;gap:10px}
+.eyebrow:before{content:"";display:inline-block;width:25px;height:1px;background:currentColor}
+h1,h2,h3,p{margin-top:0}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.045em;line-height:1.08}
+h1{font-size:clamp(48px,6.5vw,74px);margin-bottom:24px}
+h1 em,h2 em{color:var(--gold);font-weight:400}
+h2{font-size:clamp(36px,5vw,52px);margin-bottom:16px}
+h3{font-size:26px;line-height:1.2}
+.lead{color:var(--muted);max-width:43ch;line-height:1.75;margin-bottom:25px}
+.primary{display:inline-flex;justify-content:center;align-items:center;gap:26px;background:var(--gold);border:1px solid var(--gold);color:#211e17;padding:15px 22px;min-height:54px;font-weight:700;font-size:14px}
+.primary:hover:not(:disabled){background:#edcc8d;transform:translateY(-1px)}
+.arrow{font-size:22px;line-height:1}
+.small{font-size:12px;color:var(--muted)}
+.hero .small{margin:15px 0 0}
+.art{min-height:350px;display:grid;place-items:center;position:relative}
+.orbit{position:absolute;width:315px;height:315px;border:1px solid #d9b97925;border-radius:50%}
+.orbit:before,.orbit:after{content:"";position:absolute;inset:22px;border:1px dashed #d9b97926;border-radius:50%}
+.orbit:after{inset:55px;border-style:solid}
+.envelope{position:relative;background:#e8ddc7;color:#25221e;box-shadow:0 22px 65px #0008;width:295px;min-height:210px;padding:32px 24px;transform:rotate(-8deg);border:1px solid #b5a486;text-align:left}
+.envelope:after{content:"";position:absolute;inset:8px;border:1px solid #9a896c77;pointer-events:none}
+.envelope:before{content:"";position:absolute;top:-12px;left:38%;height:26px;width:78px;background:#bdae8970;transform:rotate(4deg)}
+.envelope .mono{color:#786248;font-size:10px;letter-spacing:.2em}
+.envelope .name{font-family:Georgia,serif;font-size:48px;line-height:1.2;margin:12px 0 24px}
+.seal{width:58px;height:58px;background:#873c32;box-shadow:0 2px 0 #57261f;border:3px double #bc7161;border-radius:50%;color:#e8b7a4;display:grid;place-items:center;font:26px Georgia,serif;position:absolute;right:24px;bottom:26px;transform:rotate(10deg)}
+.stamp{position:absolute;bottom:10px;right:0;color:#ca9a83;transform:rotate(7deg);border:2px solid #a3716099;padding:5px 12px;font:12px "Courier New",monospace;letter-spacing:.15em;background:#191a1b}
+footer{border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;align-items:center;gap:20px;color:#969083;font:10px "Courier New",monospace;letter-spacing:.1em;text-transform:uppercase}
+.progress{display:flex;gap:8px;align-items:center}
+.progress i{width:24px;height:3px;display:block;background:#ffffff1b}
+.progress i.done{background:var(--gold)}
+.stage{padding:38px 0 30px;min-height:592px}
+.stagehead{margin-bottom:26px;max-width:670px}
+.stagehead .eyebrow{margin-bottom:13px}
+.stagehead p:last-child{color:var(--muted);margin-bottom:0}
+.grid{display:grid;grid-template-columns:1fr 1.1fr;gap:32px;align-items:center}
+.cluebox{min-height:245px;display:grid;place-items:center;padding:14px;position:relative}
+.flipcard{border:0;display:block;transition:transform .35s;width:275px;min-height:214px}
+.flipcard:hover{transform:rotate(-3deg) translateY(-4px)}
+.flipcard .backtext{font:26px/1.35 Georgia,serif;letter-spacing:-.02em;margin:18px 0 14px}
+.flipcard.back{transform:rotate(3deg)}
+.fliphint{position:absolute;bottom:-3px;right:13px;font:11px "Courier New",monospace;color:var(--gold)}
+.choice{width:100%;min-height:52px;display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;background:#ffffff04;border:1px solid var(--line);color:var(--paper);margin:8px 0;font-size:14px;transition:background .2s,border-color .2s}
+.choice:hover{background:#ffffff09;border-color:var(--gold)}
+.choice span.code{font:11px "Courier New",monospace;border:1px solid #ffffff30;color:var(--gold);padding:2px 6px}
+.feedback{min-height:28px;color:var(--gold);font-size:13px;margin:14px 0 8px}
+.after{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:26px}
+.linkbtn{border:0;border-bottom:1px dotted #b9b1a366;background:transparent;padding:4px 0;color:var(--muted);font-size:12px}
+.hint{background:#d9b9790c;border-left:2px solid var(--gold);font-size:13px;color:var(--muted);padding:9px 13px;margin:15px 0}
+.evidence{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0}
+.tag{border:1px solid #d9b97940;background:#d9b97908;color:var(--gold);font:10px "Courier New",monospace;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px}
+.decipher{border:1px solid #d9b97940;padding:24px;background:#111214}
+.cipherlabel{font:10px "Courier New",monospace;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+.letters{display:flex;gap:7px;justify-content:center;margin:16px 0 22px}
+.letter{background:#eee5d4;color:#28231c;width:48px;height:61px;display:grid;place-items:center;font:36px Georgia,serif;box-shadow:inset 0 -4px 0 #c4b699;transition:background .2s}
+.letter.solved{background:var(--gold)}
+.dial{display:flex;align-items:center;justify-content:center;gap:18px}
+.dial button{background:transparent;border:1px solid #d9b97966;color:var(--gold);height:44px;width:44px;font-size:23px}
+.dial output{font:12px "Courier New",monospace;min-width:100px;text-align:center;color:var(--muted)}
+.cipher-source{text-align:center;color:#8b857a;font:11px "Courier New",monospace;letter-spacing:.2em;margin:20px 0 0}
+.suspects{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.suspect{border:1px solid var(--line);background:#ffffff03;padding:20px 17px;color:var(--paper);text-align:left;min-height:186px;position:relative}
+.suspect:hover,.suspect.read{border-color:#d9b97980}
+.suspect .id{font:11px "Courier New",monospace;color:var(--gold);display:block;margin-bottom:24px}
+.suspect h3{font-size:24px;letter-spacing:-.02em;margin:0 0 12px}
+.suspect p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.suspect.read .id:after{content:" · INTERROGATO"}
+.accuse{margin-top:24px}
+.accuse p{font-size:14px;margin:0 0 8px}
+.verdict{text-align:center;padding:63px 20px 45px;min-height:585px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.verdict .eyebrow{justify-content:center}
+.verdict h2{font-size:clamp(44px,6vw,66px);max-width:650px}
+.verdict p{max-width:47ch}
+.bigmark{font:68px Georgia,serif;color:var(--gold);border:1px solid #d9b97955;border-radius:50%;width:110px;height:110px;line-height:100px;margin-bottom:27px}
+.reveal{text-align:center;padding:32px 0 35px;min-height:595px}
+.reveal .eyebrow{justify-content:center;margin-bottom:18px}
+.ticket{position:relative;border:1px solid #d9b97977;background:radial-gradient(ellipse at top,#d9b97911,transparent),#202022;max-width:660px;padding:34px 30px 28px;margin:0 auto 25px}
+.ticket:before{content:"";position:absolute;inset:7px;border:1px solid #d9b97926;pointer-events:none}
+.ticket .mono{color:var(--gold);font-size:10px}
+.ticket h2{font-size:clamp(45px,7vw,73px);margin:24px 0 14px}
+.ticket .family{font-family:Georgia,serif;font-size:clamp(21px,3vw,27px);font-style:italic;color:var(--gold);margin-bottom:24px}
+.ticket .rule{border-top:1px dashed #d9b97940;margin:0 16px 21px}
+.ticket p{margin-bottom:0;color:var(--muted);font-size:13px}
+.birthday{font-family:Georgia,serif;font-size:25px;margin:0 0 5px}
+.finaltools{display:flex;align-items:center;justify-content:center;gap:22px;margin:20px 0 0}
+.toast{padding:8px 12px;color:var(--gold);font-size:12px;text-align:center;min-height:0}
+.toast:empty{display:none}
+h1:focus,h2:focus{outline:none}
+@keyframes arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.shell{padding:19px 23px 23px;min-height:760px}.brand{font-size:9px;letter-spacing:.12em}.brand .mark{height:29px;width:29px}.tools{gap:4px}.iconbtn{font-size:11px;padding:6px 8px}.hero{grid-template-columns:1fr;gap:9px;padding:33px 0 25px}.hero h1{font-size:54px;max-width:450px}.hero .lead{font-size:15px;margin-bottom:22px}.art{min-height:251px;margin:15px 0 0}.orbit{width:220px;height:220px}.envelope{width:258px;min-height:178px;padding:24px}.envelope .name{font-size:41px;margin:12px 0 16px}.seal{width:49px;height:49px;font-size:22px;right:18px;bottom:20px}.stamp{bottom:8px;right:5%;font-size:10px}.grid{grid-template-columns:1fr;gap:25px}.stage{padding-top:28px}.stagehead{margin-bottom:19px}.stagehead p:last-child{font-size:14px}.cluebox{min-height:230px}.flipcard{min-height:205px;width:270px}.flipcard .backtext{font-size:25px}.suspects{grid-template-columns:1fr;gap:8px}.suspect{min-height:0;padding:15px 17px}.suspect .id{margin-bottom:8px}.suspect h3{font-size:23px;margin-bottom:8px}.suspect p{font-size:14px}.decipher{padding:22px 13px}.letters{gap:5px}.letter{height:52px;width:38px;font-size:29px}.after{align-items:flex-start}.after .primary{font-size:13px;gap:14px;padding:14px 16px}.verdict{padding:38px 2px;min-height:600px}.verdict h2{font-size:46px}.ticket{padding:30px 17px 24px}.ticket h2{font-size:52px}.reveal{padding-top:32px}.ticket .family{font-size:24px}footer{font-size:9px;letter-spacing:.06em}.progress{gap:5px}.progress i{width:18px}.finaltools{gap:18px}.birthday{font-size:24px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Anagramma e agenda segreta */
+.wordrows{display:flex;flex-direction:column;align-items:center;gap:12px;margin:18px 0 22px}
+.wordline{display:flex;gap:6px;align-items:center}
+.slot{height:48px;width:37px;padding:0;border:1px dashed #d9b97966;background:#d9b97906;color:var(--paper);font:27px Georgia,serif;display:grid;place-items:center}
+.slot.filled{border-style:solid;background:#eee5d4;color:#28231c;box-shadow:inset 0 -3px 0 #c4b699}
+.slot:disabled{opacity:1}
+.slot.correct{background:var(--gold)}
+.pool{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:430px;margin:22px auto 17px}
+.tile{height:46px;width:42px;padding:0;border:1px solid #9a896c;background:var(--paper);color:#28231c;font:26px Georgia,serif;box-shadow:0 3px 0 #81725c}
+.tile:hover:not(:disabled){background:var(--gold);transform:translateY(-2px)}
+.tile:disabled{opacity:.19;box-shadow:none}
+.anagram-actions{display:flex;justify-content:center;gap:20px}
+.anagram-caption{text-align:center;font-size:12px;color:var(--muted);margin:0}
+.uvboard{--lamp-x:50%;--lamp-y:50%;height:340px;position:relative;overflow:hidden;border:1px solid #d9b97944;background:repeating-linear-gradient(0deg,transparent,transparent 39px,#d9b9790b 39px,#d9b9790b 40px),#111214;touch-action:none;cursor:crosshair}
+.uvboard:before{content:"ARCHIVIO / APPUNTI RISERVATI";position:absolute;top:12px;left:16px;font:9px "Courier New",monospace;letter-spacing:.12em;color:#777365}
+.uv-ink{position:absolute;inset:0;mask-image:radial-gradient(circle 105px at var(--lamp-x) var(--lamp-y),#000 57%,transparent 100%);-webkit-mask-image:radial-gradient(circle 105px at var(--lamp-x) var(--lamp-y),#000 57%,transparent 100%)}
+.secret-note{position:absolute;width:150px;height:83px;color:#ded39c;border-left:1px solid #a79dd577;padding-left:10px;text-shadow:0 0 14px #a086cd44}
+.secret-note .mono{font-size:9px;letter-spacing:.09em;color:#b0a1d9}
+.secret-note strong{font:40px/1.05 Georgia,serif;float:left;padding-right:11px}
+.secret-note p{font:12px/1.35 Georgia,serif;margin:10px 0 0}
+.secret-note:nth-child(1){left:6%;top:16%}
+.secret-note:nth-child(2){right:5%;top:44%}
+.secret-note:nth-child(3){left:18%;top:72%}
+.lamp{position:absolute;width:210px;height:210px;left:var(--lamp-x);top:var(--lamp-y);transform:translate(-50%,-50%);border:1px solid #ab95df55;border-radius:50%;background:radial-gradient(circle,#b193e513,#b193e509 60%,transparent 70%);box-shadow:0 0 22px #a88add0a;pointer-events:none}
+.scan-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:13px 0 18px}
+.scan-controls .small{margin:0}
+.scan-buttons{display:flex;gap:7px}
+.scan-buttons button{background:transparent;color:var(--muted);border:1px solid var(--line);padding:7px 11px;font-size:12px;min-height:40px}
+.scan-buttons button.found{border-color:#d9b97966;color:var(--gold)}
+.lock-form{display:flex;gap:12px;align-items:flex-end;margin-top:18px}
+.lock-form label{display:block;font:10px "Courier New",monospace;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:7px}
+.lock-form input{width:134px;height:54px;text-align:center;letter-spacing:.22em;background:#111214;color:var(--paper);border:1px solid #d9b97966;font:28px "Courier New",monospace;border-radius:3px;padding:8px}
+.lock-form input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@media(max-width:700px){.slot{width:34px;height:46px;font-size:26px}.wordline{gap:5px}.pool{max-width:350px;gap:8px}.tile{width:36px;height:42px;font-size:24px}.uvboard{height:340px}.secret-note{width:134px}.secret-note:nth-child(1){left:5%;top:15%}.secret-note:nth-child(2){right:5%;top:44%}.secret-note:nth-child(3){left:13%;top:73%}.lock-form{gap:12px}.lock-form .primary{font-size:13px;padding:13px 15px;gap:12px}.lock-form input{width:103px}.scan-controls .small{font-size:11px}}
+@media(max-width:360px){.slot{width:29px}.wordline{gap:4px}.tile{width:33px}.lock-form{flex-wrap:wrap}}
+
+
+.fireworks-canvas{position:fixed;inset:0;z-index:100;pointer-events:none;display:block}
+.finaltools{flex-wrap:wrap}
+.ticket.celebrating{border-color:#ffe0a0;box-shadow:0 0 32px #d9b97930}
+.ticket.celebrating:after{content:"✦  ✧  ✦";position:absolute;left:0;right:0;top:-14px;text-align:center;color:var(--gold);font-size:20px;letter-spacing:18px}
+@media (orientation:landscape) and (min-width:650px) and (max-height:550px){
+.shell{padding:12px 27px 14px;min-height:100svh}
+header{padding-bottom:10px}
+.hero{min-height:0;padding:24px 0;gap:24px;grid-template-columns:1.2fr 1fr}
+.hero h1{font-size:47px;margin-bottom:14px}
+.hero .eyebrow{margin-bottom:12px}
+.hero .lead{font-size:14px;line-height:1.5;margin-bottom:16px}
+.hero .small{margin-top:9px}
+.hero .art{min-height:240px}.hero .orbit{width:230px;height:230px}
+.hero .envelope{width:250px;min-height:175px;padding:24px}
+.hero .envelope .name{font-size:41px}
+.hero .stamp{bottom:0}
+footer{padding-top:10px}
+.reveal{padding:14px 0;min-height:0;display:grid;grid-template-columns:1.3fr 1fr;gap:0 22px;align-items:center;text-align:left}
+.reveal>.eyebrow{grid-column:1/-1;justify-content:center;margin-bottom:12px}
+.reveal .ticket{grid-column:1;grid-row:2/5;width:100%;padding:18px 20px;margin:0}
+.reveal .ticket h2{font-size:44px;margin:14px 0 10px}
+.reveal .ticket .family{font-size:21px;margin-bottom:13px}
+.reveal .ticket .rule{margin-bottom:12px}
+.reveal .ticket p{font-size:12px;line-height:1.5}
+.reveal>.birthday,.reveal>.small,.reveal>.finaltools{grid-column:2}
+.reveal>.birthday{font-size:27px;line-height:1.2}
+.reveal>.small{font-size:13px;margin:10px 0}
+.reveal>.finaltools{justify-content:flex-start;margin:8px 0 0;gap:12px}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+<div class="brand"><span class="mark" aria-hidden="true">P</span><span>Archivio di famiglia<br>Sezione casi speciali</span></div>
+<div class="tools"><button class="iconbtn" id="save" type="button" title="Scarica il file completo, utilizzabile senza ChatGPT">Scarica HTML</button></div>
+</header>
+<main id="screen" aria-label="Il caso di Paolo"></main>
+<p class="toast" id="toast" role="status"></p>
+<footer><span id="foot">Accesso riservato a Paolo</span><div class="progress" aria-label="Progresso del caso"><i></i><i></i><i></i><i></i></div></footer>
+</div>
+<script>
+(function(){
+"use strict";
+const source="<!doctype html>\n"+document.documentElement.outerHTML;
+const screen=document.getElementById("screen");
+const state={step:0,flipped:false,first:false,second:false};
+
+
+let fireworksRun=null;
+function stopFireworks(){
+if(!fireworksRun)return;
+const run=fireworksRun;fireworksRun=null;
+if(run.frame!==null)cancelAnimationFrame(run.frame);
+window.removeEventListener("resize",run.resize);
+if(run.canvas&&run.canvas.parentNode)run.canvas.remove();
+}
+function celebrate(){
+stopFireworks();
+const ticket=screen.querySelector(".ticket");
+if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+if(ticket)ticket.classList.add("celebrating");return;
+}
+const canvas=document.createElement("canvas");canvas.className="fireworks-canvas";canvas.setAttribute("aria-hidden","true");
+const ctx=canvas.getContext&&canvas.getContext("2d");if(!ctx)return;
+document.body.appendChild(canvas);
+const run={canvas:canvas,frame:null,resize:null,width:0,height:0,particles:[],rockets:[],started:null,last:null,launched:0};
+fireworksRun=run;
+function fit(){
+run.width=Math.max(1,window.innerWidth||document.documentElement.clientWidth);
+run.height=Math.max(1,window.innerHeight||document.documentElement.clientHeight);
+const dpr=Math.min(window.devicePixelRatio||1,2);
+canvas.width=Math.round(run.width*dpr);canvas.height=Math.round(run.height*dpr);
+canvas.style.width=run.width+"px";canvas.style.height=run.height+"px";
+ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+run.resize=fit;fit();window.addEventListener("resize",fit);
+const launches=[
+[.12,.20,.25],[.85,.80,.30],[1.65,.45,.18],[2.45,.68,.24],
+[3.25,.22,.38],[4.05,.82,.19],[4.90,.40,.27],[5.75,.65,.35],
+[6.6,.18,.22],[7.4,.83,.26],[8.25,.38,.17],[9.0,.68,.18]
+];
+const colors=["#edcc86","#ffe9b8","#db877f","#b6d8d3","#d5bfdc"];
+function launch(spec){
+run.rockets.push({age:0,duration:.68+Math.random()*.15,x0:(spec[1]<.5?.12:.88)*run.width,y0:run.height+10,x1:spec[1]*run.width,y1:spec[2]*run.height,color:colors[run.launched%colors.length]});
+}
+function burst(rocket){
+const count=run.width<500?52:78,scale=Math.min(run.width,run.height)/500;
+for(let i=0;i<count;i++){
+const angle=Math.PI*2*i/count+(Math.random()-.5)*.12,speed=(70+Math.random()*110)*Math.max(.6,scale),life=1.5+Math.random()*1.0;
+run.particles.push({x:rocket.x1,y:rocket.y1,px:rocket.x1,py:rocket.y1,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:life,total:life,color:rocket.color,size:1+Math.random()*1.2});
+}
+}
+function frame(timestamp){
+if(fireworksRun!==run)return;
+if(document.hidden){stopFireworks();return;}
+if(run.started===null){run.started=timestamp;run.last=timestamp;}
+const elapsed=(timestamp-run.started)/1000,dt=Math.min(.04,Math.max(0,(timestamp-run.last)/1000));run.last=timestamp;
+while(run.launched<launches.length&&elapsed>=launches[run.launched][0]){launch(launches[run.launched]);run.launched++;}
+ctx.clearRect(0,0,run.width,run.height);ctx.globalCompositeOperation="lighter";
+for(let i=run.rockets.length-1;i>=0;i--){
+const r=run.rockets[i];r.age+=dt;const p=Math.min(r.age/r.duration,1),ease=1-Math.pow(1-p,2),tail=1-Math.pow(1-Math.max(0,p-.10),2);
+const x=r.x0+(r.x1-r.x0)*ease,y=r.y0+(r.y1-r.y0)*ease;
+ctx.globalAlpha=.75;ctx.strokeStyle=r.color;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(r.x0+(r.x1-r.x0)*tail,r.y0+(r.y1-r.y0)*tail);ctx.lineTo(x,y);ctx.stroke();
+ctx.fillStyle=r.color;ctx.beginPath();ctx.arc(x,y,1.8,0,Math.PI*2);ctx.fill();
+if(p===1){burst(r);run.rockets.splice(i,1);}
+}
+for(let i=run.particles.length-1;i>=0;i--){
+const p=run.particles[i];p.life-=dt;if(p.life<=0){run.particles.splice(i,1);continue;}
+p.px=p.x;p.py=p.y;p.vx*=Math.pow(.985,dt*60);p.vy=p.vy*Math.pow(.99,dt*60)+48*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
+ctx.globalAlpha=Math.min(1,p.life/.5)*.84;ctx.strokeStyle=p.color;ctx.lineWidth=p.size;
+ctx.beginPath();ctx.moveTo(p.px-p.vx*.025,p.py-p.vy*.025);ctx.lineTo(p.x,p.y);ctx.stroke();
+}
+ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";
+if(elapsed>12.5&&run.rockets.length===0&&run.particles.length===0){stopFireworks();return;}
+run.frame=requestAnimationFrame(frame);
+}
+run.frame=requestAnimationFrame(frame);
+}
+document.addEventListener("visibilitychange",function(){if(document.hidden)stopFireworks();});
+window.addEventListener("pagehide",stopFireworks);
+
+function on(id,fn){const el=document.getElementById(id);if(el)el.addEventListener("click",fn);}
+function progress(n){document.querySelectorAll(".progress i").forEach(function(el,i){el.classList.toggle("done",i<n);});document.querySelector(".progress").setAttribute("aria-label",n+" di 4 tappe completate");document.getElementById("foot").textContent=n===4?"Caso chiuso · Famiglia complice":"Accesso riservato a Paolo";}
+function show(markup,n){stopFireworks();screen.innerHTML=markup;screen.style.animation="none";void screen.offsetWidth;screen.style.animation="";progress(n);const heading=screen.querySelector("h1,h2");if(heading){heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});}try{window.scrollTo({top:0,behavior:"instant"});}catch(e){}}
+function hint(text){const el=document.getElementById("hint");el.hidden=!el.hidden;el.textContent=text;}
+function intro(){state.step=0;show('<section class="hero"><div><p class="eyebrow">Un compleanno fuori copione</p><h1>Paolo,<br>abbiamo un<br><em>piccolo caso.</em></h1><p class="lead">Il tuo regalo è scomparso.<br>La famiglia si dichiara innocente.<br>Ma qualcuno sta decisamente mentendo.</p><button class="primary" id="start">Apri il fascicolo <span class="arrow" aria-hidden="true">↗</span></button><p class="small">Tre indizi. Nessuna fretta. Fidati di nessuno.</p></div><div class="art" aria-hidden="true"><div class="orbit"></div><div class="envelope"><div class="mono">Strettamente personale</div><div class="name">Per Paolo.</div><div class="mono">Da aprire con sospetto.</div><div class="seal">P</div></div><div class="stamp">Regalo classificato</div></div></section>',0);on("start",function(){one();});}
+function one(){state.step=1;show('<section class="stage"><div class="stagehead"><p class="eyebrow">Indizio 01 / La busta</p><h2>Ogni storia ha<br><em>un altro lato.</em></h2><p>Questa busta è l’unica cosa rimasta al posto del regalo. Esaminala.</p></div><div class="grid"><div class="cluebox"><button class="envelope flipcard" id="flip" aria-label="Gira la busta per leggere il retro"><div class="mono">Reperto numero 01</div><div class="name">Per Paolo.</div><div class="mono">Apparentemente vuota.</div><div class="seal" aria-hidden="true">?</div></button><span class="fliphint">↖ Tocca la busta per girarla</span></div><div><p class="mono" style="color:var(--gold)">Che cosa stai cercando?</p><button class="choice" data-answer="0"><span class="code">A</span>Un oggetto da scartare</button><button class="choice" data-answer="1"><span class="code">B</span>Un’esperienza da vivere</button><button class="choice" data-answer="2"><span class="code">C</span>La ricevuta del regalo</button><p class="feedback" id="feedback" role="status"></p></div></div><div class="after"><button class="linkbtn" id="help">Un piccolo aiuto</button><button class="primary" id="next" disabled>Segui la pista <span class="arrow" aria-hidden="true">→</span></button></div><p class="hint" id="hint" hidden></p></section>',0);
+on("flip",function(){state.flipped=true;const b=document.getElementById("flip");b.classList.add("back");b.setAttribute("aria-label","Retro della busta: non cercare qualcosa da mettere su uno scaffale. Il regalo è qualcosa da vivere.");b.innerHTML='<div class="mono">Messaggio sul retro</div><p class="backtext">«Non cercare qualcosa da mettere su uno scaffale.<br>Il regalo è qualcosa<br><em>da vivere.</em>»</p><div class="mono">Firmato: qualcuno che ti conosce.</div>';});
+screen.querySelectorAll("[data-answer]").forEach(function(b){b.addEventListener("click",function(){if(!state.flipped){document.getElementById("feedback").textContent="Prima esamina la busta: potrebbe nascondere un messaggio.";return;}if(b.dataset.answer==="1"){state.first=true;document.getElementById("feedback").textContent="Esatto. Questa volta la scatola non serve.";document.getElementById("next").disabled=false;}else{document.getElementById("feedback").textContent="Il messaggio sul retro suggerisce un’altra pista. Riprova.";}});});
+on("help",function(){hint("Tocca la busta. Il messaggio sul retro parla di qualcosa da vivere.");});on("next",two);}
+function two(){
+state.step=2;state.second=false;
+const target="INSIEMEAMILANO",order=[5,11,3,10,4,12,9,2,13,8,6,0,7,1],tiles=order.map(function(i){return target[i];}),slots=Array(14).fill(null);
+const lengths=[7,1,6];let slotIndex=0;
+show('<section class="stage"><div class="stagehead"><p class="eyebrow">Indizio 02 / L’anagramma</p><h2>Le lettere ci sono.<br><em>Manca l’ordine.</em></h2><p>Qualcuno ha mescolato il prossimo indizio. Tocca le lettere e ricomponi la frase: tre parole, da 7, 1 e 6 lettere.</p></div><div class="decipher"><div class="cipherlabel">Un indizio da ricostruire</div><div class="wordrows">'+lengths.map(function(length,w){return '<div class="wordline" aria-label="Parola '+(w+1)+' di '+length+' lettere">'+Array.from({length:length},function(_,j){const idx=slotIndex++;return '<button class="slot" data-slot="'+idx+'" aria-label="Parola '+(w+1)+', casella '+(j+1)+', vuota" disabled></button>';}).join("")+'</div>';}).join("")+'</div><p class="anagram-caption">Tocca una casella piena per rimettere la lettera tra le altre.</p><div class="pool">'+tiles.map(function(c,i){return '<button class="tile" data-tile="'+i+'" aria-label="Inserisci la lettera '+c+'">'+c+'</button>';}).join("")+'</div><div class="anagram-actions"><button class="linkbtn" id="reset-anagram">Ricomincia la frase ↺</button></div></div><div class="evidence"><span class="tag">01 · Un’esperienza</span></div><p class="feedback" id="feedback" role="status"></p><div class="after"><button class="linkbtn" id="help">Un piccolo aiuto</button><button class="primary" id="confirm">Conferma la frase <span class="arrow" aria-hidden="true">→</span></button></div><p class="hint" id="hint" hidden></p></section>',1);
+function update(){
+screen.querySelectorAll("[data-slot]").forEach(function(b,i){const c=slots[i]===null?"":tiles[slots[i]];b.textContent=c;b.disabled=slots[i]===null||state.second;b.classList.toggle("filled",slots[i]!==null);b.classList.toggle("correct",state.second);b.setAttribute("aria-label","Casella "+(i+1)+(c?", lettera "+c+", tocca per rimuoverla":", vuota"));});
+screen.querySelectorAll("[data-tile]").forEach(function(b,i){b.disabled=slots.includes(i)||state.second;});
+}
+screen.querySelectorAll("[data-tile]").forEach(function(b,i){b.addEventListener("click",function(){if(state.second)return;const next=slots.indexOf(null);if(next<0)return;slots[next]=i;update();document.getElementById("feedback").textContent="";});});
+screen.querySelectorAll("[data-slot]").forEach(function(b,i){b.addEventListener("click",function(){if(state.second)return;slots[i]=null;update();document.getElementById("feedback").textContent="";});});
+on("reset-anagram",function(){if(state.second)return;slots.fill(null);update();document.getElementById("feedback").textContent="";});
+on("confirm",function(){
+if(state.second){three();return;}
+if(slots.includes(null)){document.getElementById("feedback").textContent="Manca ancora qualche lettera. Riempi tutte le caselle.";return;}
+const guess=slots.map(function(i){return tiles[i];}).join("");
+if(guess===target){state.second=true;update();document.getElementById("reset-anagram").disabled=true;document.getElementById("feedback").textContent="INSIEME A MILANO. Ora sai con chi e in quale città.";document.getElementById("confirm").innerHTML='Segui l’ultima pista <span class="arrow" aria-hidden="true">→</span>';}else{document.getElementById("feedback").textContent="L’ordine non è ancora quello giusto. Tocca le caselle che vuoi correggere e prova di nuovo.";}
+});
+on("help",function(){hint("La prima parola significa «in compagnia». L’ultima è la città del Duomo. La parola in mezzo ha una sola lettera.");});
+update();
+}
+function three(){
+state.step=3;
+const notes=[
+{digit:"7",text:"La compagnia: tutta la famiglia."},
+{digit:"3",text:"L’occorrente: appetito e intuito."},
+{digit:"1",text:"La regola: non fidarti di nessuno."}
+];
+const found=[false,false,false];
+show('<section class="stage"><div class="stagehead"><p class="eyebrow">Indizio 03 / L’agenda segreta</p><h2>Non tutto si vede<br><em>alla prima occhiata.</em></h2><p>Muovi la torcia sulla pagina: l’inchiostro invisibile nasconde tre cifre. Leggile nell’ordine indicato per aprire il regalo.</p></div><div class="uvboard" id="uvboard" tabindex="0" role="group" aria-label="Pagina da esplorare con una torcia. Muovi il dito, il mouse o usa le frecce della tastiera. In alternativa usa i pulsanti Nota 1, Nota 2 e Nota 3."><div class="uv-ink" aria-hidden="true">'+notes.map(function(n,i){return '<div class="secret-note" id="note-'+i+'"><div class="mono">'+["Prima","Seconda","Terza"][i]+' cifra</div><p><strong>'+n.digit+'</strong>'+n.text+'</p></div>';}).join("")+'</div><div class="lamp" aria-hidden="true"></div></div><div class="scan-controls"><p class="small" id="scan-status" role="status">0 / 3 note trovate</p><div class="scan-buttons" aria-label="Esplora le note senza trascinare"><button type="button" data-note="0">Nota 1</button><button type="button" data-note="1">Nota 2</button><button type="button" data-note="2">Nota 3</button></div></div><p class="small" id="note-reading" role="status">Puoi anche toccare i pulsanti per spostare la torcia.</p><div class="evidence"><span class="tag">01 · Un’esperienza</span><span class="tag">02 · Insieme a Milano</span></div><form id="lock-form" class="lock-form"><div><label for="combination">Codice a tre cifre</label><input id="combination" type="text" inputmode="numeric" autocomplete="off" maxlength="3" pattern="[0-9]{3}" placeholder="···" aria-describedby="feedback" required></div><button class="primary" type="submit">Apri il sigillo <span class="arrow" aria-hidden="true">→</span></button></form><p class="feedback" id="feedback" role="status"></p><button class="linkbtn" id="help">Un piccolo aiuto</button><p class="hint" id="hint" hidden></p></section>',2);
+const board=document.getElementById("uvboard");let point={x:50,y:50};
+function center(i){const b=board.getBoundingClientRect(),n=document.getElementById("note-"+i).getBoundingClientRect();return {x:(n.left+n.width/2-b.left)/b.width*100,y:(n.top+n.height/2-b.top)/b.height*100};}
+function remember(i){found[i]=true;const buttons=screen.querySelectorAll("[data-note]");buttons[i].classList.add("found");buttons[i].setAttribute("aria-label","Nota "+(i+1)+" trovata, rileggi");document.getElementById("scan-status").textContent=found.filter(Boolean).length+" / 3 note trovate";document.getElementById("note-reading").textContent=["Prima","Seconda","Terza"][i]+" cifra: "+notes[i].digit+". "+notes[i].text;}
+function illuminate(x,y){point={x:Math.max(0,Math.min(100,x)),y:Math.max(0,Math.min(100,y))};board.style.setProperty("--lamp-x",point.x+"%");board.style.setProperty("--lamp-y",point.y+"%");const rect=board.getBoundingClientRect();notes.forEach(function(_,i){const c=center(i),dx=(point.x-c.x)*rect.width/100,dy=(point.y-c.y)*rect.height/100;if(dx*dx+dy*dy<58*58)remember(i);});}
+function move(e){const r=board.getBoundingClientRect();if(r.width&&r.height)illuminate((e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*100);}
+board.addEventListener("pointermove",move);
+board.addEventListener("pointerdown",function(e){board.focus({preventScroll:true});move(e);});
+board.addEventListener("keydown",function(e){const steps={ArrowLeft:[-7,0],ArrowRight:[7,0],ArrowUp:[0,-7],ArrowDown:[0,7]},s=steps[e.key];if(s){e.preventDefault();illuminate(point.x+s[0],point.y+s[1]);}});
+screen.querySelectorAll("[data-note]").forEach(function(b,i){b.addEventListener("click",function(){const c=center(i);illuminate(c.x,c.y);remember(i);});});
+document.getElementById("lock-form").addEventListener("submit",function(e){e.preventDefault();const input=document.getElementById("combination");if(input.value.trim()==="731"){verdict();}else{document.getElementById("feedback").textContent="Il sigillo resta chiuso. Controlla l’ordine: prima, seconda e terza cifra.";input.setAttribute("aria-invalid","true");}});
+document.getElementById("combination").addEventListener("input",function(){this.setAttribute("aria-invalid","false");});
+on("help",function(){hint("Esplora le tre note con la torcia o con i pulsanti. Ognuna indica una cifra e la sua posizione nel codice.");});
+}
+function verdict(){state.step=4;show('<section class="verdict"><div class="bigmark" aria-hidden="true">✓</div><p class="eyebrow">Accesso autorizzato</p><h2>Caso risolto.<br><em>La sorpresa è tua.</em></h2><p class="lead">Hai seguito tutte le tracce, Paolo. Ora sai che sarà un’esperienza da vivere insieme. Manca solo un ultimo dettaglio…</p><button class="primary" id="reveal">Scopri il tuo regalo <span class="arrow" aria-hidden="true">↗</span></button></section>',3);on("reveal",function(){reveal();});}
+function reveal(){state.step=5;show('<section class="reveal"><p class="eyebrow">Il mistero è risolto</p><div class="ticket"><div class="mono">Invito speciale · Destinatario: Paolo</div><h2>Una cena<br><em>con delitto.</em></h2><p class="family">Con tutta la famiglia.</p><div class="rule"></div><p>Il tavolo è prenotato.<br>I sospettati siamo noi.<br>Il protagonista sei tu.</p></div><p class="birthday">Buon compleanno, Paolo!</p><p class="small">Preparati a indagare, ridere e sospettare di tutti noi.<br>Con affetto, tutta la famiglia.</p><div class="finaltools"><button class="linkbtn" id="again">Riapri il caso ↺</button><button class="linkbtn" id="fireworks-again">Ancora fuochi ✨</button><button class="linkbtn" id="download">Scarica HTML ↓</button></div></section>',4);on("again",function(){state.flipped=false;state.first=false;state.second=false;intro();});on("download",download);on("fireworks-again",celebrate);celebrate();}
+function download(){try{const blob=new Blob([source],{type:"text/html;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="index.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},30000);document.getElementById("toast").textContent="Se il download è consentito, trovi index.html nei file scaricati: contiene il gioco completo e non richiede ChatGPT.";}catch(e){document.getElementById("toast").textContent="Il download non è disponibile in questa anteprima.";}}
+on("save",download);
+
+intro();
+})();
+</script>
+</body>
+</html>
